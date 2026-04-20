@@ -219,29 +219,29 @@ export default function ShipmentDetail() {
   const f = (field) => (e) => setForm(p => ({ ...p, [field]: e.target.value }));
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-5 max-w-5xl">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-500">
         <Link to="/sevkiyatlar" className="hover:text-blue-600">Sevkiyatlar</Link>
         <span>›</span>
-        <span className="text-gray-900 font-medium">{data.reference_no || `Sevkiyat #${data.id}`}</span>
+        <span className="text-gray-900 font-medium truncate">{data.reference_no || `Sevkiyat #${data.id}`}</span>
       </div>
 
       {/* Header */}
-      <div className="card p-5">
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-xl font-bold text-gray-900">
+      <div className="card p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">
                 {data.reference_no || `Sevkiyat #${data.id}`}
               </h1>
               <span className={data.status === 'paid' ? 'badge-paid' : 'badge-pending'}>
                 {data.status === 'paid' ? '✓ Ödendi' : '⏳ Ödeme Bekleniyor'}
               </span>
             </div>
-            <div className="flex flex-wrap gap-4 text-sm text-gray-500 mt-2">
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500 mt-2">
               <span>📅 {fmtDate(data.shipment_date)}</span>
-              <span>👥 {data.customer_name} <span className="text-gray-400">({data.agency_name})</span></span>
+              <span className="truncate">👥 {data.customer_name} <span className="text-gray-400">({data.agency_name})</span></span>
               {data.shipping_method && (
                 <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${data.shipping_method === 'FOB' ? 'bg-orange-100 text-orange-700' : 'bg-teal-100 text-teal-700'}`}>
                   {data.shipping_method}
@@ -251,7 +251,7 @@ export default function ShipmentDetail() {
               {data.description && <span>📝 {data.description}</span>}
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-shrink-0">
             <button className="btn-secondary text-sm" onClick={() => setEditMode(!editMode)}>
               {editMode ? 'İptal' : '✏️ Düzenle'}
             </button>
@@ -267,7 +267,7 @@ export default function ShipmentDetail() {
                 {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="label">Tarih</label>
                 <input type="date" className="input" value={form.shipment_date} onChange={f('shipment_date')} />
@@ -303,7 +303,7 @@ export default function ShipmentDetail() {
                 <input type="number" min="0" step="0.01" className="input" value={form.fob_amount} onChange={f('fob_amount')} placeholder="0.00" />
               </div>
             )}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="label">Fatura Tutarı (CI)</label>
                 <input type="number" min="0" step="0.01" className="input" value={form.invoice_amount} onChange={f('invoice_amount')} />
@@ -327,20 +327,20 @@ export default function ShipmentDetail() {
       </div>
 
       {/* Commission Summary */}
-      <div className="card p-5 bg-gradient-to-br from-blue-50 to-green-50 border-blue-200">
+      <div className="card p-4 sm:p-5 bg-gradient-to-br from-blue-50 to-green-50 border-blue-200">
         <h2 className="font-bold text-gray-800 mb-4 text-base">💰 Komisyon Özeti</h2>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-3 sm:gap-6">
           <div className="text-center">
             <div className="text-xs text-gray-500 mb-1 uppercase tracking-wide">Komisyon Oranı</div>
-            <div className="text-2xl font-bold text-blue-700">%{data.commission_rate}</div>
+            <div className="text-xl sm:text-2xl font-bold text-blue-700">%{data.commission_rate}</div>
           </div>
           <div className="text-center">
-            <div className="text-xs text-gray-500 mb-1 uppercase tracking-wide">Ödeme Tutarı</div>
-            <div className="text-2xl font-bold text-gray-700">{fmtMoney(data.payment_amount, data.currency)}</div>
+            <div className="text-xs text-gray-500 mb-1 uppercase tracking-wide">Ödeme</div>
+            <div className="text-base sm:text-2xl font-bold text-gray-700 break-all">{fmtMoney(data.payment_amount, data.currency)}</div>
           </div>
-          <div className="text-center bg-green-100 rounded-xl py-2">
-            <div className="text-xs text-green-600 mb-1 uppercase tracking-wide font-semibold">Hesaplanan Komisyon</div>
-            <div className="text-2xl font-extrabold text-green-700">
+          <div className="text-center bg-green-100 rounded-xl py-2 px-1">
+            <div className="text-xs text-green-600 mb-1 uppercase tracking-wide font-semibold">Komisyon</div>
+            <div className="text-base sm:text-2xl font-extrabold text-green-700 break-all">
               {data.commission_amount ? fmtMoney(data.commission_amount, data.currency) : '—'}
             </div>
           </div>
@@ -360,7 +360,7 @@ export default function ShipmentDetail() {
       {/* Documents */}
       <div>
         <h2 className="font-bold text-gray-900 mb-3 text-base">📂 Sevkiyat Belgeleri</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {DOC_TYPES.map(type => (
             <DocCard
               key={type.key}
@@ -377,7 +377,7 @@ export default function ShipmentDetail() {
       {/* Product Images */}
       <div>
         <h2 className="font-bold text-gray-900 mb-3 text-base">🖼️ Ürün Görselleri</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {data.images?.map(img => (
             <div key={img.id} className="card overflow-hidden group">
               <a href={`/uploads/${img.filename}`} target="_blank" rel="noopener noreferrer">

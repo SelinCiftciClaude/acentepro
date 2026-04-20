@@ -140,24 +140,25 @@ export default function AgencyDetail() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link to="/acenteler" className="text-gray-400 hover:text-gray-700 text-sm">← Acenteler</Link>
-          <span className="text-gray-300">/</span>
-          <h1 className="text-2xl font-bold text-gray-900">{agency.name}</h1>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+            <Link to="/acenteler" className="hover:text-blue-600">← Acenteler</Link>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{agency.name}</h1>
         </div>
         <div className="flex gap-2">
-          <button className="btn-secondary" onClick={exportExcel}>
-            <span className="mr-1.5">📊</span>Excel İndir
+          <button className="btn-secondary text-sm" onClick={exportExcel}>
+            <span className="mr-1">📊</span><span className="hidden sm:inline">Excel İndir</span><span className="sm:hidden">Excel</span>
           </button>
-          <button className="btn-secondary" onClick={exportPDF}>
-            <span className="mr-1.5">📄</span>PDF İndir
+          <button className="btn-secondary text-sm" onClick={exportPDF}>
+            <span className="mr-1">📄</span><span className="hidden sm:inline">PDF İndir</span><span className="sm:hidden">PDF</span>
           </button>
         </div>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="card p-5">
           <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Müşteri Sayısı</div>
           <div className="text-3xl font-bold text-gray-900">{customers.length}</div>
@@ -179,7 +180,7 @@ export default function AgencyDetail() {
 
       {/* Date Filters */}
       <div className="card p-4">
-        <div className="flex flex-wrap items-end gap-4">
+        <div className="grid grid-cols-1 sm:flex flex-wrap items-end gap-3 sm:gap-4">
           <div>
             <label className="label">Başlangıç</label>
             <input type="date" className="input" value={startDate} onChange={e => setStartDate(e.target.value)} />
@@ -206,7 +207,8 @@ export default function AgencyDetail() {
           <div className="p-10 text-center text-gray-400">Bu acenteye ait müşteri bulunamadı</div>
         ) : (
           <>
-            <table className="w-full">
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[600px]">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
                   <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">Müşteri</th>
@@ -254,7 +256,8 @@ export default function AgencyDetail() {
                 ))}
               </tbody>
             </table>
-            <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
+            </div>
+            <div className="px-4 sm:px-5 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
               <span>{customers.length} müşteri</span>
               <span className="font-semibold text-green-600">
                 Toplam Komisyon: {fmtMoney(total_commission)}
@@ -267,10 +270,11 @@ export default function AgencyDetail() {
       {/* Recent Shipments */}
       {shipments.length > 0 && (
         <div className="card overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100">
+          <div className="px-4 sm:px-5 py-4 border-b border-gray-100">
             <h2 className="font-semibold text-gray-900">Sevkiyat Listesi</h2>
           </div>
-          <table className="w-full">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[640px]">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">Tarih</th>
@@ -316,6 +320,7 @@ export default function AgencyDetail() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

@@ -145,30 +145,30 @@ export default function Reports() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Komisyon Raporu</h1>
-          <p className="text-gray-500 text-sm mt-1">Müşteri bazında komisyon özetleri</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Komisyon Raporu</h1>
+          <p className="text-gray-500 text-sm mt-0.5">Müşteri bazında komisyon özetleri</p>
         </div>
         {report && (
-          <div className="flex gap-2">
-            <button className="btn-secondary" onClick={exportExcel}>
-              <span className="mr-1.5">📊</span>Excel İndir
+          <div className="flex flex-wrap gap-2">
+            <button className="btn-secondary text-sm" onClick={exportExcel}>
+              <span className="mr-1">📊</span><span className="hidden sm:inline">Excel İndir</span><span className="sm:hidden">Excel</span>
             </button>
-            <button className="btn-secondary" onClick={exportPDF}>
-              <span className="mr-1.5">📄</span>PDF İndir
+            <button className="btn-secondary text-sm" onClick={exportPDF}>
+              <span className="mr-1">📄</span><span className="hidden sm:inline">PDF İndir</span><span className="sm:hidden">PDF</span>
             </button>
-            <button className="btn-secondary" onClick={() => window.print()}>
-              <span className="mr-1.5">🖨️</span>Yazdır
+            <button className="btn-secondary text-sm" onClick={() => window.print()}>
+              <span className="mr-1">🖨️</span><span className="hidden sm:inline">Yazdır</span>
             </button>
           </div>
         )}
       </div>
 
       {/* Filters */}
-      <div className="card p-5 space-y-4">
+      <div className="card p-4 sm:p-5 space-y-4">
         <h2 className="font-semibold text-gray-800">Filtreler</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div>
             <label className="label">Acente</label>
             <select className="input" value={filterAgency} onChange={e => { setFilterAgency(e.target.value); setSelectedCustomer(''); }}>
@@ -214,8 +214,8 @@ export default function Reports() {
       {report && !loading && (
         <div className="space-y-5" id="print-area">
           {/* Customer Info */}
-          <div className="card p-5">
-            <div className="grid grid-cols-3 gap-6">
+          <div className="card p-4 sm:p-5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
               <div>
                 <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Müşteri</div>
                 <div className="font-bold text-gray-900 text-base">{report.customer?.name}</div>
@@ -238,14 +238,15 @@ export default function Reports() {
 
           {/* Shipments Table */}
           <div className="card overflow-hidden">
-            <div className="px-5 py-4 border-b border-gray-100">
+            <div className="px-4 sm:px-5 py-4 border-b border-gray-100">
               <h2 className="font-semibold text-gray-900">Sevkiyat Detayları</h2>
             </div>
             {report.shipments?.length === 0 ? (
               <div className="p-10 text-center text-gray-400">Bu dönemde sevkiyat bulunamadı</div>
             ) : (
               <>
-                <table className="w-full">
+                <div className="overflow-x-auto">
+                <table className="w-full min-w-[600px]">
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-200">
                       <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">Tarih</th>
@@ -285,11 +286,12 @@ export default function Reports() {
                   </tbody>
                 </table>
 
+                </div>
                 {/* Totals */}
-                <div className="border-t-2 border-gray-200 px-5 py-4 bg-gray-50">
-                  <div className="flex items-center justify-between">
+                <div className="border-t-2 border-gray-200 px-4 sm:px-5 py-4 bg-gray-50">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="text-sm text-gray-500">{report.shipments.length} sevkiyat · {report.shipments.filter(s => s.status === 'paid').length} ödendi</div>
-                    <div className="flex items-center gap-8">
+                    <div className="flex flex-wrap items-center gap-4 sm:gap-8">
                       <div className="text-right">
                         <div className="text-xs text-gray-400 uppercase tracking-wide">Toplam Ödeme</div>
                         <div className="text-sm font-semibold text-gray-700">{fmtMoney(report.total_payment)}</div>

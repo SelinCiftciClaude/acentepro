@@ -18,15 +18,14 @@ export default function Customers() {
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
 
-  // Inline column filters
   const [fName, setFName] = useState('');
   const [fAgency, setFAgency] = useState('');
   const [fCountry, setFCountry] = useState('');
   const [fRate, setFRate] = useState('');
   const [fShipments, setFShipments] = useState('');
   const [fCommission, setFCommission] = useState('');
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
-  // Sort
   const [sort, setSort] = useState({ field: 'name', dir: 'asc' });
 
   useEffect(() => {
@@ -50,8 +49,6 @@ export default function Customers() {
   }
 
   const countries = useMemo(() => [...new Set(items.map(i => i.country).filter(Boolean))].sort(), [items]);
-  const agencyOptions = useMemo(() => [...new Set(items.map(i => i.agency_name).filter(Boolean))].sort(), [items]);
-
   const hasFilters = fName || fAgency || fCountry || fRate || fShipments || fCommission;
 
   const filtered = useMemo(() => {
@@ -62,7 +59,6 @@ export default function Customers() {
     if (fRate !== '') list = list.filter(i => String(i.commission_rate).includes(fRate));
     if (fShipments !== '') list = list.filter(i => i.shipment_count >= parseInt(fShipments));
     if (fCommission !== '') list = list.filter(i => (i.total_commission || 0) >= parseFloat(fCommission));
-
     list.sort((a, b) => {
       let va, vb;
       switch (sort.field) {
@@ -108,25 +104,62 @@ export default function Customers() {
   }
 
   const f = (field) => (e) => setForm(p => ({ ...p, [field]: e.target.value }));
-
   const thClass = "text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-3 py-3 cursor-pointer select-none hover:text-gray-700 whitespace-nowrap";
   const filterInputClass = "w-full px-2 py-1 text-xs border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400 bg-white placeholder-gray-300";
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Müşteriler</h1>
-          <p className="text-gray-500 text-sm mt-1">Her müşteri için komisyon oranı tanımlayın</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Müşteriler</h1>
+          <p className="text-gray-500 text-sm mt-0.5">Her müşteri için komisyon oranı tanımlayın</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {hasFilters && (
-            <button onClick={clearFilters} className="text-xs text-red-500 hover:text-red-700 font-medium border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-50">
+            <button onClick={clearFilters} className="text-xs text-red-500 hover:text-red-700 font-medium border border-red-200 px-2.5 py-1.5 rounded-lg hover:bg-red-50 hidden sm:inline-flex">
               ✕ Filtreleri Temizle
             </button>
           )}
-          <button className="btn-primary" onClick={openNew}>+ Yeni Müşteri</button>
+          <button className="btn-primary text-sm" onClick={openNew}>+ Ekle</button>
         </div>
+      </div>
+
+      {/* Mobile search bar */}
+      <div className="sm:hidden space-y-2">
+        <div className="relative">
+          <input
+            className="input pl-8"
+            placeholder="Müşteri ara..."
+            value={fName}
+            onChange={e => setFName(e.target.value)}
+          />
+          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+        </div>
+        <button
+          onClick={() => setFiltersOpen(v => !v)}
+          className={`btn-secondary text-xs w-full justify-center ${hasFilters ? 'border-blue-300 text-blue-600' : ''}`}
+        >
+          {filtersOpen ? '▲' : '▼'} Filtreler {hasFilters ? `(aktif)` : ''}
+        </button>
+        {filtersOpen && (
+          <div className="card p-3 space-y-2">
+            <select className={filterInputClass} value={fAgency} onChange={e => setFAgency(e.target.value)}>
+              <option value="">Tüm Acenteler</option>
+              {agencies.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+            </select>
+            <select className={filterInputClass} value={fCountry} onChange={e => setFCountry(e.target.value)}>
+              <option value="">Tüm Ülkeler</option>
+              {countries.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <div className="flex gap-2">
+              <input className={filterInputClass} type="number" min="0" max="100" placeholder="Komisyon oranı" value={fRate} onChange={e => setFRate(e.target.value)} />
+              <input className={filterInputClass} type="number" min="0" placeholder="Min. sevkiyat" value={fShipments} onChange={e => setFShipments(e.target.value)} />
+            </div>
+            {hasFilters && (
+              <button onClick={clearFilters} className="text-xs text-red-500 font-medium w-full text-center">✕ Filtreleri Temizle</button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="card overflow-hidden">
@@ -140,90 +173,129 @@ export default function Customers() {
           </div>
         ) : (
           <>
-            <table className="w-full">
-              <thead>
-                {/* Sıralama satırı */}
-                <tr className="bg-gray-50 border-b border-gray-100">
-                  <th className={thClass} onClick={() => toggleSort('name')}>Müşteri <SortIcon field="name" sort={sort} /></th>
-                  <th className={thClass} onClick={() => toggleSort('agency')}>Acente <SortIcon field="agency" sort={sort} /></th>
-                  <th className={thClass} onClick={() => toggleSort('country')}>Ülke <SortIcon field="country" sort={sort} /></th>
-                  <th className={thClass} onClick={() => toggleSort('rate')}>Komisyon Oranı <SortIcon field="rate" sort={sort} /></th>
-                  <th className={thClass} onClick={() => toggleSort('shipments')}>Sevkiyat <SortIcon field="shipments" sort={sort} /></th>
-                  <th className={thClass} onClick={() => toggleSort('commission')}>Toplam Komisyon <SortIcon field="commission" sort={sort} /></th>
-                  <th className="px-3 py-3 bg-gray-50"></th>
-                </tr>
-                {/* Filtre satırı */}
-                <tr className="bg-white border-b border-gray-200">
-                  <td className="px-3 py-2">
-                    <input className={filterInputClass} placeholder="Ada göre ara..." value={fName} onChange={e => setFName(e.target.value)} />
-                  </td>
-                  <td className="px-3 py-2">
-                    <select className={filterInputClass} value={fAgency} onChange={e => setFAgency(e.target.value)}>
-                      <option value="">Tümü</option>
-                      {agencies.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                    </select>
-                  </td>
-                  <td className="px-3 py-2">
-                    <select className={filterInputClass} value={fCountry} onChange={e => setFCountry(e.target.value)}>
-                      <option value="">Tümü</option>
-                      {countries.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </td>
-                  <td className="px-3 py-2">
-                    <input className={filterInputClass} type="number" min="0" max="100" placeholder="Örn: 5" value={fRate} onChange={e => setFRate(e.target.value)} />
-                  </td>
-                  <td className="px-3 py-2">
-                    <input className={filterInputClass} type="number" min="0" placeholder="Min. adet" value={fShipments} onChange={e => setFShipments(e.target.value)} />
-                  </td>
-                  <td className="px-3 py-2">
-                    <input className={filterInputClass} type="number" min="0" placeholder="Min. tutar" value={fCommission} onChange={e => setFCommission(e.target.value)} />
-                  </td>
-                  <td className="px-3 py-2"></td>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filtered.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-5 py-10 text-center text-gray-400">
-                      Filtreyle eşleşen müşteri bulunamadı —
-                      <button onClick={clearFilters} className="ml-1 text-blue-500 hover:underline text-sm">filtreleri temizle</button>
-                    </td>
+            {/* Desktop table */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-100">
+                    <th className={thClass} onClick={() => toggleSort('name')}>Müşteri <SortIcon field="name" sort={sort} /></th>
+                    <th className={thClass} onClick={() => toggleSort('agency')}>Acente <SortIcon field="agency" sort={sort} /></th>
+                    <th className={thClass} onClick={() => toggleSort('country')}>Ülke <SortIcon field="country" sort={sort} /></th>
+                    <th className={thClass} onClick={() => toggleSort('rate')}>Komisyon Oranı <SortIcon field="rate" sort={sort} /></th>
+                    <th className={thClass} onClick={() => toggleSort('shipments')}>Sevkiyat <SortIcon field="shipments" sort={sort} /></th>
+                    <th className={thClass} onClick={() => toggleSort('commission')}>Toplam Komisyon <SortIcon field="commission" sort={sort} /></th>
+                    <th className="px-3 py-3 bg-gray-50"></th>
                   </tr>
-                ) : filtered.map(item => (
-                  <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-3 py-3.5">
-                      <div className="font-medium text-gray-900">{item.name}</div>
-                      {item.email && <div className="text-xs text-gray-400 mt-0.5">{item.email}</div>}
+                  <tr className="bg-white border-b border-gray-200">
+                    <td className="px-3 py-2">
+                      <input className={filterInputClass} placeholder="Ada göre ara..." value={fName} onChange={e => setFName(e.target.value)} />
                     </td>
-                    <td className="px-3 py-3.5 text-sm text-gray-600">{item.agency_name}</td>
-                    <td className="px-3 py-3.5 text-sm text-gray-500">{item.country || '—'}</td>
-                    <td className="px-3 py-3.5">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                    <td className="px-3 py-2">
+                      <select className={filterInputClass} value={fAgency} onChange={e => setFAgency(e.target.value)}>
+                        <option value="">Tümü</option>
+                        {agencies.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                      </select>
+                    </td>
+                    <td className="px-3 py-2">
+                      <select className={filterInputClass} value={fCountry} onChange={e => setFCountry(e.target.value)}>
+                        <option value="">Tümü</option>
+                        {countries.map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </td>
+                    <td className="px-3 py-2">
+                      <input className={filterInputClass} type="number" min="0" max="100" placeholder="Örn: 5" value={fRate} onChange={e => setFRate(e.target.value)} />
+                    </td>
+                    <td className="px-3 py-2">
+                      <input className={filterInputClass} type="number" min="0" placeholder="Min. adet" value={fShipments} onChange={e => setFShipments(e.target.value)} />
+                    </td>
+                    <td className="px-3 py-2">
+                      <input className={filterInputClass} type="number" min="0" placeholder="Min. tutar" value={fCommission} onChange={e => setFCommission(e.target.value)} />
+                    </td>
+                    <td className="px-3 py-2"></td>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filtered.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-5 py-10 text-center text-gray-400">
+                        Filtreyle eşleşen müşteri bulunamadı —
+                        <button onClick={clearFilters} className="ml-1 text-blue-500 hover:underline text-sm">filtreleri temizle</button>
+                      </td>
+                    </tr>
+                  ) : filtered.map(item => (
+                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-3 py-3.5">
+                        <div className="font-medium text-gray-900">{item.name}</div>
+                        {item.email && <div className="text-xs text-gray-400 mt-0.5">{item.email}</div>}
+                      </td>
+                      <td className="px-3 py-3.5 text-sm text-gray-600">{item.agency_name}</td>
+                      <td className="px-3 py-3.5 text-sm text-gray-500">{item.country || '—'}</td>
+                      <td className="px-3 py-3.5">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                          %{item.commission_rate}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3.5 text-sm text-gray-500">
+                        <Link to={`/sevkiyatlar?customer_id=${item.id}`} className="hover:text-blue-600">
+                          {item.shipment_count} sevkiyat
+                        </Link>
+                      </td>
+                      <td className="px-3 py-3.5 text-sm font-semibold text-green-600">
+                        {item.total_commission > 0
+                          ? `$${Number(item.total_commission).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`
+                          : '—'}
+                      </td>
+                      <td className="px-3 py-3.5 text-right whitespace-nowrap">
+                        <button className="text-blue-600 hover:text-blue-800 text-sm font-medium mr-3" onClick={() => openEdit(item)}>Düzenle</button>
+                        <button className="text-red-500 hover:text-red-700 text-sm font-medium" onClick={() => handleDelete(item)}>Sil</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile card list */}
+            <div className="sm:hidden divide-y divide-gray-100">
+              {filtered.length === 0 ? (
+                <div className="px-4 py-10 text-center text-gray-400 text-sm">
+                  Filtreyle eşleşen müşteri bulunamadı —{' '}
+                  <button onClick={clearFilters} className="text-blue-500 hover:underline">temizle</button>
+                </div>
+              ) : filtered.map(item => (
+                <div key={item.id} className="px-4 py-3.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="font-medium text-gray-900">{item.name}</div>
+                      {item.email && <div className="text-xs text-gray-400">{item.email}</div>}
+                      <div className="text-xs text-gray-500 mt-0.5">{item.agency_name} {item.country ? `· ${item.country}` : ''}</div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
                         %{item.commission_rate}
                       </span>
-                    </td>
-                    <td className="px-3 py-3.5 text-sm text-gray-500">
-                      <Link to={`/sevkiyatlar?customer_id=${item.id}`} className="hover:text-blue-600">
-                        {item.shipment_count} sevkiyat
-                      </Link>
-                    </td>
-                    <td className="px-3 py-3.5 text-sm font-semibold text-green-600">
-                      {item.total_commission > 0
-                        ? `$${Number(item.total_commission).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`
-                        : '—'}
-                    </td>
-                    <td className="px-3 py-3.5 text-right whitespace-nowrap">
-                      <button className="text-blue-600 hover:text-blue-800 text-sm font-medium mr-3" onClick={() => openEdit(item)}>Düzenle</button>
-                      <button className="text-red-500 hover:text-red-700 text-sm font-medium" onClick={() => handleDelete(item)}>Sil</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      {item.total_commission > 0 && (
+                        <span className="text-xs font-semibold text-green-600">
+                          ${Number(item.total_commission).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between mt-2.5">
+                    <Link to={`/sevkiyatlar?customer_id=${item.id}`} className="text-xs text-gray-500 hover:text-blue-600">
+                      📦 {item.shipment_count} sevkiyat
+                    </Link>
+                    <div className="flex gap-3">
+                      <button className="text-blue-600 text-xs font-medium" onClick={() => openEdit(item)}>Düzenle</button>
+                      <button className="text-red-500 text-xs font-medium" onClick={() => handleDelete(item)}>Sil</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <div className="px-4 py-2.5 bg-gray-50 border-t border-gray-100 text-xs text-gray-400">
-              {hasFilters
-                ? `${filtered.length} / ${items.length} müşteri gösteriliyor`
-                : `${items.length} müşteri`}
+              {hasFilters ? `${filtered.length} / ${items.length} müşteri gösteriliyor` : `${items.length} müşteri`}
             </div>
           </>
         )}
@@ -243,7 +315,7 @@ export default function Customers() {
               <label className="label">Müşteri / Firma Adı *</label>
               <input className="input" value={form.name} onChange={f('name')} placeholder="Örn: Global Trade Inc." autoFocus />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="label">E-posta</label>
                 <input className="input" type="email" value={form.email} onChange={f('email')} />
@@ -253,7 +325,7 @@ export default function Customers() {
                 <input className="input" value={form.phone} onChange={f('phone')} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="label">Ülke</label>
                 <input className="input" value={form.country} onChange={f('country')} placeholder="Örn: Türkiye" />

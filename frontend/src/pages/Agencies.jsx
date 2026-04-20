@@ -87,43 +87,77 @@ export default function Agencies() {
             <button className="btn-primary mt-4" onClick={openNew}>{t('add_first_agency')}</button>
           </div>
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">{t('agency_name')}</th>
-                <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">{t('agency_email')}</th>
-                <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">{t('agency_phone')}</th>
-                <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">{t('agency_customers')}</th>
-                <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">Giriş</th>
-                <th className="px-5 py-3"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
+          <>
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">{t('agency_name')}</th>
+                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">{t('agency_email')}</th>
+                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">{t('agency_phone')}</th>
+                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">{t('agency_customers')}</th>
+                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">Giriş</th>
+                    <th className="px-5 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {items.map(item => (
+                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-5 py-3.5 font-medium text-gray-900">{item.name}</td>
+                      <td className="px-5 py-3.5 text-gray-500 text-sm">{item.email || '—'}</td>
+                      <td className="px-5 py-3.5 text-gray-500 text-sm">{item.phone || '—'}</td>
+                      <td className="px-5 py-3.5 text-sm text-gray-500">{item.customer_count || 0} {t('agency_customers')}</td>
+                      <td className="px-5 py-3.5">
+                        {item.username ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                            ✓ {item.username}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-400">—</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                        <Link to={`/acenteler/${item.id}`} className="text-green-600 hover:text-green-800 text-sm font-medium mr-3">{t('summary')}</Link>
+                        <button className="text-purple-600 hover:text-purple-800 text-sm font-medium mr-3" onClick={() => openCreds(item)}>{t('login_settings')}</button>
+                        <button className="text-blue-600 hover:text-blue-800 text-sm font-medium mr-3" onClick={() => openEdit(item)}>{t('edit')}</button>
+                        <button className="text-red-500 hover:text-red-700 text-sm font-medium" onClick={() => handleDelete(item)}>{t('delete')}</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile card list */}
+            <div className="md:hidden divide-y divide-gray-100">
               {items.map(item => (
-                <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-5 py-3.5 font-medium text-gray-900">{item.name}</td>
-                  <td className="px-5 py-3.5 text-gray-500 text-sm">{item.email || '—'}</td>
-                  <td className="px-5 py-3.5 text-gray-500 text-sm">{item.phone || '—'}</td>
-                  <td className="px-5 py-3.5 text-sm text-gray-500">{item.customer_count || 0} {t('agency_customers')}</td>
-                  <td className="px-5 py-3.5">
-                    {item.username ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                        ✓ {item.username}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-gray-400">—</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-3.5 text-right whitespace-nowrap">
-                    <Link to={`/acenteler/${item.id}`} className="text-green-600 hover:text-green-800 text-sm font-medium mr-3">{t('summary')}</Link>
-                    <button className="text-purple-600 hover:text-purple-800 text-sm font-medium mr-3" onClick={() => openCreds(item)}>{t('login_settings')}</button>
-                    <button className="text-blue-600 hover:text-blue-800 text-sm font-medium mr-3" onClick={() => openEdit(item)}>{t('edit')}</button>
-                    <button className="text-red-500 hover:text-red-700 text-sm font-medium" onClick={() => handleDelete(item)}>{t('delete')}</button>
-                  </td>
-                </tr>
+                <div key={item.id} className="px-4 py-4">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div>
+                      <div className="font-medium text-gray-900">{item.name}</div>
+                      {item.email && <div className="text-xs text-gray-400">{item.email}</div>}
+                      {item.phone && <div className="text-xs text-gray-400">{item.phone}</div>}
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="text-xs text-gray-500">{item.customer_count || 0} {t('agency_customers')}</span>
+                      {item.username ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                          ✓ {item.username}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-3 mt-2">
+                    <Link to={`/acenteler/${item.id}`} className="text-green-600 text-xs font-medium">{t('summary')}</Link>
+                    <button className="text-purple-600 text-xs font-medium" onClick={() => openCreds(item)}>{t('login_settings')}</button>
+                    <button className="text-blue-600 text-xs font-medium" onClick={() => openEdit(item)}>{t('edit')}</button>
+                    <button className="text-red-500 text-xs font-medium" onClick={() => handleDelete(item)}>{t('delete')}</button>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
       </div>
 
